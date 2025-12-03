@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 成大 MATHINK AI 數創實境營</title>
+    <!-- 載入 Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 確保中文字體顯示良好，並使用 Inter 作為英文字體 */
+        :root {
+            --primary-color: #3b82f6; /* Blue 500 */
+        }
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #f8fafc; /* Light background */
+        }
+        .section-padding {
+            padding-top: 5rem;
+            padding-bottom: 5rem;
+        }
+        /* 隱藏行動版菜單 */
+        #mobile-menu {
+            display: none;
+        }
+        .accordion-item:not(:last-child) {
+            border-bottom: 1px solid #e5e7eb;
+        }
+        /* 確保費用表格在行動裝置上保持可讀性 */
+        .fee-table th, .fee-table td {
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+        }
+        
+        /* 滾動動態效果 CSS 樣式 */
+        .animate-on-scroll {
+            /* 初始：完全透明，並從下方輕微移動 1.5rem */
+            opacity: 0;
+            transform: translateY(1.5rem);
+            /* 設置標準過渡效果，時長 0.8 秒，平滑結束 */
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            /* 預設延遲為 0，由 JS 動態決定最終延遲時間 */
+            transition-delay: 0ms !important; 
+        }
+
+        .animate-on-scroll.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 首頁標題動畫 (確保立即出現) */
+        .hero-animate {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(2rem);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 課表專用樣式調整 */
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #e5e7eb;
+            vertical-align: top;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+        }
+        .schedule-table th {
+            background-color: #e0f2fe; /* Light Blue for headers */
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'camp-primary': '#3b82f6', /* Blue 500 */
+                        'camp-accent': '#06b6d4', /* Cyan 500 */
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-gray-800">
+
+    <!-- 固定導覽列 (Navbar) -->
+    <header class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/營隊名稱 -->
+                <div class="flex-shrink-0 hero-animate">
+                    <a href="#home" class="text-xl font-bold text-camp-primary hover:text-camp-accent transition duration-300">
+                        成大 MATHINK AI 數創營
+                    </a>
+                </div>
+                
+                <!-- 桌面版導覽連結 -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#about" class="text-gray-600 hover:text-camp-primary transition duration-300 hero-animate" style="animation-delay: 0.1s;">營隊簡介</a>
+                    <a href="#schedule" class="text-gray-600 hover:text-camp-primary transition duration-300 hero-animate" style="animation-delay: 0.2s;">課程資訊</a>
+                    <a href="#fees" class="text-gray-600 hover:text-camp-primary transition duration-300 hero-animate" style="animation-delay: 0.3s;">報名費用</a>
+                    <a href="#registration" class="text-gray-600 hover:text-camp-primary transition duration-300 hero-animate" style="animation-delay: 0.4s;">立即報名</a>
+                    <a href="#faq" class="text-gray-600 hover:text-camp-primary transition duration-300 hero-animate" style="animation-delay: 0.5s;">常見問題</a>
+                    <a href="#contact" class="text-gray-600 hover:text-camp-primary transition duration-300 hero-animate" style="animation-delay: 0.6s;">聯絡我們</a>
+                    <!-- 連結已更新 -->
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdrHvXQgd2JC3OvlPv8AKIKB-6CwivUQ6vTZ2-QoSPlNEkpPw/viewform" target="_blank" class="px-3 py-1 text-sm font-semibold bg-camp-accent text-white rounded-full hover:bg-cyan-600 transition duration-300 hero-animate" style="animation-delay: 0.7s;">線上報名</a>
+                </nav>
+
+                <!-- 行動版菜單按鈕 -->
+                <button id="mobile-menu-button" type="button" class="md:hidden p-2 text-gray-500 hover:text-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-camp-primary">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 行動版導覽菜單 (Mobile Menu) -->
+        <div id="mobile-menu" class="md:hidden bg-white border-t border-gray-200 shadow-lg">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#about" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">營隊簡介</a>
+                <a href="#schedule" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">課程資訊</a>
+                <a href="#fees" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">報名費用</a>
+                <a href="#registration" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">立即報名</a>
+                <a href="#faq" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">常見問題</a>
+                <a href="#contact" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">聯絡我們</a>
+                <!-- 連結已更新 -->
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSdrHvXQgd2JC3OvlPv8AKIKB-6CwivUQ6vTZ2-QoSPlNEkpPw/viewform" target="_blank" class="block px-3 py-2 rounded-md text-base font-medium text-white bg-camp-primary hover:bg-camp-primary/90 mt-2 text-center">線上報名</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 1. 首頁 (Home) -->
+        <section id="home" class="relative bg-camp-primary/90 text-white section-padding flex items-center justify-center min-h-[70vh] md:min-h-[85vh] overflow-hidden">
+            <!-- 背景裝飾 -->
+            <div class="absolute inset-0 bg-gradient-to-br from-camp-primary to-blue-900 opacity-90"></div>
+            <div class="absolute inset-0 bg-[url('https://placehold.co/1200x800/2563eb/ffffff/png?text=NCKU+Pattern')] opacity-5 mix-blend-overlay"></div>
+
+            <div class="relative z-10 text-center max-w-4xl mx-auto p-4">
+                <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-4 leading-tight hero-animate" style="animation-delay: 0.1s;">
+                    2026 成大 MATHINK AI 數創實境營
+                </h1>
+                <p class="text-xl sm:text-2xl font-light mb-8 hero-animate" style="animation-delay: 0.2s;">
+                    將數學思維與 AI 創意，融入成大歷史底蘊
+                </p>
+                <div class="space-y-4 sm:space-y-0 sm:space-x-8 hero-animate" style="animation-delay: 0.3s;">
+                    <p class="text-lg font-semibold bg-white text-camp-primary py-2 px-6 rounded-lg shadow-xl inline-block">
+                        日期：<span class="font-bold">2026年1月28日(三)至1月31日(六)</span>
+                    </p>
+                    <p class="text-lg font-semibold bg-white text-camp-primary py-2 px-6 rounded-lg shadow-xl inline-block">
+                        地點：<span class="font-bold">國立成功大學</span>
+                    </p>
+                </div>
+                <!-- 報名按鈕 (Call to Action) -->
+                <a href="#registration" class="mt-12 inline-flex items-center justify-center px-10 py-4 border border-transparent text-lg font-bold rounded-full shadow-2xl text-camp-primary bg-camp-accent hover:bg-white hover:shadow-3xl transition duration-500 transform hover:scale-105 hero-animate" style="background-color: #ffed4a; color: #2d3748; animation-delay: 0.4s;">
+                    立即報名！掌握未來科技
+                </a>
+            </div>
+        </section>
+
+        <!-- 2. 營隊簡介與特色 (About) - 合併了 Highlights 內容 -->
+        <section id="about" class="section-padding bg-white">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">ℹ️ 營隊簡介與特色</h2>
+                
+                <p class="text-lg text-gray-700 text-center mb-10 animate-on-scroll">
+                    2026 成大MATHINK AI數創實境營 將跨越理工界線，帶大家沈浸於<span class="font-bold">成功大學與臺南府城濃厚的歷史底蘊</span>，結合專業數學課程設計，探索數學思維在文化脈絡中的深度與廣度。
+                </p>
+
+                <!-- 營隊四大特色 -->
+                <h3 class="text-2xl font-bold text-camp-accent mb-6 mt-12 animate-on-scroll">活動亮點與特色</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+                    <!-- 數學Ｘ跨領域 -->
+                    <div class="p-5 bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-camp-primary animate-on-scroll">
+                        <h4 class="text-xl font-semibold mb-2 text-camp-accent">數學Ｘ跨領域</h4>
+                        <p class="text-gray-600">跨越界線，以數學建模的方式應用數學來解決現實世界的問題。</p>
+                    </div>
+                    <!-- 知識饗宴X專業競賽 -->
+                    <div class="p-5 bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-camp-primary animate-on-scroll">
+                        <h4 class="text-xl font-semibold mb-2 text-camp-accent">知識饗宴X專業競賽</h4>
+                        <p class="text-gray-600">紮實的數學與跨領域課程，帶領你與夥伴們腦力激盪暢遊數學。</p>
+                    </div>
+                    <!-- 成大散策Ｘ漫步歷史 -->
+                    <div class="p-5 bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-camp-primary animate-on-scroll">
+                        <h4 class="text-xl font-semibold mb-2 text-camp-accent">成大散策Ｘ漫步歷史</h4>
+                        <p class="text-gray-600">漫步成大校園中認識成大歷史，記錄在成大的足跡，感受濃厚的歷史底蘊。</p>
+                    </div>
+                    <!-- 美食饗宴X建構人脈場域 -->
+                    <div class="p-5 bg-gray-50 rounded-xl shadow-lg hover:shadow-xl transition duration-300 border-t-4 border-camp-primary animate-on-scroll">
+                        <h4 class="text-xl font-semibold mb-2 text-camp-accent">美食饗宴X人脈場域</h4>
+                        <p class="text-gray-600">晚宴時光讓同學自由交流與交換名片，讓人脈與知識一同跨領域發展。</p>
+                    </div>
+                </div>
+
+                <!-- 獎學金與營隊資訊 -->
+                <div class="mt-16 grid lg:grid-cols-2 gap-10">
+                    <!-- 招生資訊 -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-md border-l-4 border-camp-primary animate-on-scroll">
+                        <h3 class="text-2xl font-semibold mb-4 text-camp-primary">營隊資訊一覽</h3>
+                        <ul class="space-y-3 text-gray-700">
+                            <li><span class="font-bold">日期：</span>2026年1月28日(三)至1月31日(六)</li>
+                            <li><span class="font-bold">地點：</span>國立成功大學</li>
+                            <li><span class="font-bold">招生對象：</span>全國高中職學生</li>
+                            <li><span class="font-bold">招生名額：</span>100人 (額滿以完成繳費先後順序錄取)</li>
+                            <!-- 課程表連結已移除，改為直接嵌入 -->
+                            <li><span class="font-bold">詳細課表：</span>請見下方「課程與活動概覽」區塊。</li>
+                            <!-- FB粉絲專頁連結已更新 -->
+                            <li><span class="font-bold">更多資訊：</span><a href="https://www.facebook.com/p/%E6%88%90%E5%A4%A7%E6%95%B8%E5%AD%B8x%E8%B7%A8%E9%A0%98%E5%9F%9Fx%E5%BB%BA%E6%A8%A1%E7%A0%94%E7%BF%92%E7%87%9F-61568089536374/" target="_blank" class="text-camp-accent hover:underline">FB 粉絲專頁</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- 獎學金資訊 -->
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-md border-l-4 border-camp-accent animate-on-scroll">
+                        <h3 class="text-2xl font-semibold mb-4 text-camp-accent">學習競賽與獎學金</h3>
+                        <p class="text-gray-700 mb-4">
+                            本營隊為學習競賽型營隊。評分依據包含：課後小考、數學建模黑客松作品、營隊其他活動及師長主觀印象成績總和。
+                        </p>
+                        
+                        <div class="overflow-x-auto animate-on-scroll">
+                            <table class="w-full text-left border-collapse fee-table">
+                                <thead class="bg-camp-accent/20">
+                                    <tr>
+                                        <th class="py-2 px-1 text-center font-bold text-camp-primary">獎項</th>
+                                        <th class="py-2 px-1 text-center font-bold text-camp-primary">獲獎比例</th>
+                                        <th class="py-2 px-1 text-center font-bold text-camp-primary">每人獎金 (NT$)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-2 font-bold">壹等獎</td>
+                                        <td>前 4%</td>
+                                        <td class="text-red-600 font-bold">$4,000</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 font-bold">貳等獎</td>
+                                        <td>前 5%~8%</td>
+                                        <td class="text-orange-600 font-bold">$3,000</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 font-bold">叁等獎</td>
+                                        <td>前 9%~20%</td>
+                                        <td class="text-yellow-600 font-bold">$1,000</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-2 font-bold">佳作</td>
+                                        <td>前 21%~40%</td>
+                                        <td class="text-green-600 font-bold">$500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="text-sm text-gray-500 mt-4 animate-on-scroll">
+                            另有票選<span class="font-bold">最佳人氣獎</span>、團體競賽<span class="font-bold">最佳創意獎</span>、<span class="font-bold">團體合作獎</span>，總計約 40% 學員可獲獎，總獎金創歷年新高！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 課程資訊 (Schedule) - 完整課表直接嵌入 -->
+        <section id="schedule" class="section-padding bg-gray-50">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">📚 課程與活動概覽 (完整課表)</h2>
+                
+                <div class="text-center max-w-full mx-auto">
+                    <p class="text-lg text-gray-700 mb-8 animate-on-scroll">
+                        本次營隊為四天三夜的完整課程設計，涵蓋數學基礎、AI 應用、歷史文化探索與實務競賽。
+                    </p>
+                    
+                    <!-- 完整課程表 (嵌入式表格，根據附圖內容) -->
+                    <div class="mt-10 p-4 sm:p-6 bg-white rounded-xl shadow-2xl overflow-x-auto animate-on-scroll">
+                        <h3 class="text-2xl font-bold text-camp-primary mb-4 text-left border-b pb-2">2026 成大 MATHINK AI 數創營 完整課表</h3>
+                        <table class="min-w-full divide-y divide-gray-200 schedule-table">
+                            <thead>
+                                <tr>
+                                    <th class="px-2 py-3 text-left text-sm font-bold text-gray-700 uppercase tracking-wider w-1/12">日期<br>時間</th>
+                                    <th class="px-2 py-3 text-center text-sm font-bold text-camp-primary uppercase tracking-wider w-1/5">-第一天-<br>1月28日(三)</th>
+                                    <th class="px-2 py-3 text-center text-sm font-bold text-camp-primary uppercase tracking-wider w-1/5">-第二天-<br>1月29日(四)</th>
+                                    <th class="px-2 py-3 text-center text-sm font-bold text-camp-primary uppercase tracking-wider w-1/5">-第三天-<br>1月30日(五)</th>
+                                    <th class="px-2 py-3 text-center text-sm font-bold text-camp-primary uppercase tracking-wider w-1/5">-第四天-<br>1月31日(六)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                                <!-- 09:00 - 10:30 -->
+                                <tr>
+                                    <td class="px-2 py-3 font-bold text-gray-800 bg-gray-50">09:00 - 10:30</td>
+                                    <td class="px-2 py-3 text-center">-</td>
+                                    <td class="px-2 py-3 text-center font-semibold text-camp-primary">
+                                        數的因果關係：避開數列<br><span class="text-xs font-normal text-gray-600">成大數學系 李宗儒 教授</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-center font-semibold text-camp-accent">
+                                        AI 驅動的物流革新<br><span class="text-xs font-normal text-gray-600">工業技術研究院 施佑林 副理</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-center font-semibold text-camp-primary">
+                                        密碼學與數學<br><span class="text-xs font-normal text-gray-600">成大數學系 黃柏峰 教授</span>
+                                    </td>
+                                </tr>
+                                <!-- 10:30 - 12:00 -->
+                                <tr>
+                                    <td class="px-2 py-3 font-bold text-gray-800 bg-gray-50">10:30 - 12:00</td>
+                                    <td class="px-2 py-3 text-center">-</td>
+                                    <td class="px-2 py-3 text-center font-semibold text-camp-primary">
+                                        量子 AI 於衝出太空遙測的應用<br><span class="text-xs font-normal text-gray-600">成大電機系 林家祥 教授</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-center">-</td>
+                                    <td class="px-2 py-3 text-center font-semibold text-camp-accent">
+                                        綜合論理<br><span class="text-xs font-normal text-gray-600">成大數學系 彭勇寧 教授</span>
+                                    </td>
+                                </tr>
+                                <!-- 12:00 - 13:30 (Lunch Break) -->
+                                <tr class="bg-camp-accent/10">
+                                    <td class="px-2 py-3 font-bold text-gray-800">12:00 - 13:30</td>
+                                    <td class="px-2 py-3 text-center font-bold text-red-600">報到&破冰</td>
+                                    <td class="px-2 py-3 text-center font-bold text-camp-accent" colspan="3">午休 & 午餐</td>
+                                </tr>
+                                <!-- 13:30 - 15:00 -->
+                                <tr>
+                                    <td class="px-2 py-3 font-bold text-gray-800 bg-gray-50">13:30 - 15:00</td>
+                                    <td class="px-2 py-3 text-center" rowspan="2">
+                                        <span class="font-semibold text-camp-accent">成大校園巡禮 X 台南歷史介紹</span><br>
+                                        <span class="text-xs font-normal text-gray-600">成大數學系 許瑞麟 教授</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-center" rowspan="2">
+                                        <span class="font-semibold text-camp-primary">【數學建模黑客松】</span><br>
+                                        理論課程+上機實作<br>
+                                        <span class="text-xs font-normal text-gray-600">成大地科系 劉厚均 教授</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-center" rowspan="2">
+                                        <span class="font-semibold text-camp-primary">【數學建模黑客松】</span><br>
+                                        上機實作<br>
+                                        <span class="text-xs font-normal text-gray-600">成大地科系 劉厚均 教授</span>
+                                    </td>
+                                    <td class="px-2 py-3 text-center" rowspan="2">
+                                        <span class="font-semibold text-red-600">【數學建模黑客松】</span><br>
+                                        Oral Presentation X 頒獎
+                                    </td>
+                                </tr>
+                                <!-- 15:00 - 17:00 -->
+                                <tr>
+                                    <td class="px-2 py-3 font-bold text-gray-800 bg-gray-50">15:00 - 17:00</td>
+                                    <!-- Content merged from 13:30 row -->
+                                </tr>
+                                <!-- 17:00 - (Evening) -->
+                                <tr class="bg-camp-primary/10">
+                                    <td class="px-2 py-3 font-bold text-gray-800">17:00 -</td>
+                                    <td class="px-2 py-3 text-center">-</td>
+                                    <td class="px-2 py-3 text-center">-</td>
+                                    <td class="px-2 py-3 text-center font-bold text-camp-primary">
+                                        BANQUET<br>交換名片
+                                    </td>
+                                    <td class="px-2 py-3 text-center font-bold text-red-600">
+                                        營隊結束<br>(16:00 賦歸)
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p class="text-xs text-left text-gray-500 mt-4">註：課表內容與時間安排已依據最新資訊圖表更新，可能因應講師或活動需求進行微調，請以最終行前通知信為準。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 費用資訊 (Fees) -->
+        <section id="fees" class="section-padding bg-white">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">💰 報名費用與住宿選項</h2>
+                
+                <div class="bg-gray-50 p-8 rounded-xl shadow-2xl space-y-8 animate-on-scroll">
+                    
+                    <!-- 報名費用主表 -->
+                    <div class="animate-on-scroll">
+                        <h3 class="text-2xl font-semibold text-camp-primary mb-3">報名費用 (含課程、餐食、保險)</h3>
+                        <p class="text-sm text-red-500 mb-4">
+                            <span class="font-bold">請注意：</span>費用以完成繳費人數計算，若額滿，以完成繳費先後順序依序錄取。
+                        </p>
+                        <div class="overflow-x-auto animate-on-scroll">
+                            <table class="w-full text-left border-collapse fee-table border border-gray-200">
+                                <thead class="bg-camp-accent/20">
+                                    <tr>
+                                        <th class="py-3 text-center font-bold text-camp-primary">報名類別</th>
+                                        <th class="py-3 text-center font-bold text-camp-primary">適用人數</th>
+                                        <th class="py-3 text-center font-bold text-camp-primary">每人費用 (NT$)</th>
+                                        <th class="py-3 text-center font-bold text-camp-primary">繳費合計 (NT$)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b">
+                                        <td class="py-3 font-bold">團體報名 (特惠)</td>
+                                        <td>4人或4人以上</td>
+                                        <td><span class="text-camp-accent font-bold">$4,800</span></td>
+                                        <td><span class="text-camp-accent font-bold">$4,800 x 總人數</span></td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-3">揪團報名</td>
+                                        <td>3人</td>
+                                        <td>$5,000</td>
+                                        <td>$15,000</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td class="py-3">揪團報名</td>
+                                        <td>2人</td>
+                                        <td>$5,400</td>
+                                        <td>$10,800</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 font-bold text-red-600">單獨報名</td>
+                                        <td>1人</td>
+                                        <td><span class="font-bold text-red-600">$5,800</span></td>
+                                        <td>$5,800</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- 住宿費用與規則 -->
+                    <div class="border-t pt-6 animate-on-scroll">
+                        <h3 class="text-2xl font-semibold text-camp-primary mb-3">住宿選項與費用</h3>
+                        <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                            <li><span class="font-bold text-camp-accent">住宿可自理，或申請校園住宿。</span></li>
+                            <li>若需申請校園住宿，需<span class="font-bold text-red-500">加收 NT$1,500 / 人</span> (包含第2天至第4天早餐)。</li>
+                            <li><span class="font-bold">住宿申請截止日：</span>最遲需於 <span class="font-bold text-red-500">2025年12月15日</span> 前完成營隊報名及匯款手續 (含住宿費)，逾期請自理住宿。</li>
+                            <li><span class="font-bold">床位不保證：</span>宿舍有限，將依完成報名及匯款順序安排。若未安排到床位，將立刻通知並於營隊報到時<span class="font-bold">退還住宿款項</span> (不含手續費)。</li>
+                            <!-- 宿舍照片連結 placeholder 保持不變 -->
+                            <li><span class="font-bold">個人用品：</span>宿舍僅提供床板，請<span class="font-bold">自備睡袋、盥洗用具、吹風機及拖鞋</span>等個人用品。 (<a href="[宿舍照片連結]" target="_blank" class="text-camp-accent hover:underline">參考宿舍照片</a>)</li>
+                        </ul>
+                    </div>
+
+                    <!-- 住宿總繳費說明 -->
+                    <div class="border-t pt-6 p-4 bg-camp-accent/10 rounded-lg animate-on-scroll">
+                        <h3 class="text-xl font-semibold text-camp-accent mb-2">總繳費計算範例</h3>
+                        <p class="text-gray-700">總金額 = 報名費 (依人數團報價) + <span class="font-bold text-red-600">申請住宿人數 x NT$1,500</span></p>
+                    </div>
+
+                    <!-- 保險與低收減免 -->
+                    <div class="border-t pt-6 animate-on-scroll">
+                        <h3 class="text-xl font-semibold text-camp-primary mb-3">保險及特別減免</h3>
+                        <ul class="list-disc ml-6 text-gray-700 space-y-2">
+                            <li><span class="font-bold">營期保險：</span>報名費內含營隊期間 (2026/01/28~01/31) 的<span class="font-bold">旅行平安險</span>。</li>
+                            <li><span class="font-bold">低收／中低收入戶減免：</span>
+                                <ul>
+                                    <li>【低收】減免 80%；【中低收】減免 60%。</li>
+                                    <li>需先全額繳費，營隊結束後一個月陸續退還減免款項。</li>
+                                    <li>報到時須繳交鄉（鎮市區）公所開具之「<span class="font-bold">當年度低收或中低收證明正本</span>」。</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 報名方式 (Registration) -->
+        <section id="registration" class="section-padding bg-gray-50">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">📝 報名方式與截止日期</h2>
+                
+                <div class="grid md:grid-cols-2 gap-10">
+                    <!-- 報名流程與期限 -->
+                    <div class="space-y-6 animate-on-scroll">
+                        <h3 class="text-2xl font-semibold text-camp-accent mb-4">報名重要時程</h3>
+                        
+                        <div class="p-4 rounded-lg bg-camp-primary/10 shadow-md animate-on-scroll">
+                            <h4 class="font-bold text-lg text-camp-primary">報名期間：</h4>
+                            <p class="text-2xl font-extrabold text-red-600">即日起至 2026年1月3日 (六) 23:59 止</p>
+                        </div>
+                        
+                        <div class="p-4 rounded-lg bg-camp-primary/10 shadow-md animate-on-scroll">
+                            <h4 class="font-bold text-lg text-camp-primary">繳費最後期限：</h4>
+                            <p class="text-lg font-bold text-red-600">同報名截止日，2026年1月3日 (六)</p>
+                        </div>
+
+                        <h3 class="text-2xl font-semibold text-camp-accent mt-8 mb-4">團體報名須知</h3>
+                        <ul class="list-disc ml-6 text-gray-700 space-y-2 animate-on-scroll">
+                            <li>歡迎組隊報名。四人團報者，本營隊儘量協助安排同一隊。</li>
+                            <li>3人（含）以下報名則由本營隊協助分組。</li>
+                            <li><span class="font-bold">4人以上團報：</span>請指定一名聯絡人，<span class="font-bold">聯絡人統一繳費</span>，並來信 (ircm@ncku.edu.tw) 告知為同一團隊報名。</li>
+                            <li>請注意：超過 4 人以上團報，請填寫 4 人團報選項。其餘則填寫 3 人~1 人報名表單。</li>
+                        </ul>
+                    </div>
+
+                    <!-- 報名連結 & 繳費方式 -->
+                    <div class="p-8 bg-white rounded-xl shadow-lg animate-on-scroll">
+                        <h3 class="text-2xl font-semibold text-camp-accent mb-4">第一步：填寫表單與繳費</h3>
+                        
+                        <!-- 報名表單連結已更新 -->
+                        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdrHvXQgd2JC3OvlPv8AKIKB-6CwivUQ6vTZ2-QoSPlNEkpPw/viewform" target="_blank" class="w-full block text-center py-3 bg-camp-accent text-white font-bold rounded-lg shadow-xl hover:bg-cyan-600 transition duration-300 transform hover:scale-[1.02] animate-on-scroll">
+                            點擊前往 線上報名表單
+                        </a>
+                        <p class="text-sm text-center text-gray-600 mt-2">請確認您已詳閱所有費用及住宿注意事項。</p>
+
+                        <h3 class="text-2xl font-semibold text-camp-primary mt-8 mb-3">第二步：繳費方式與回傳</h3>
+                        <ul class="list-disc ml-6 text-gray-700 space-y-2 animate-on-scroll">
+                            <li><span class="font-bold">方式：</span>轉帳匯款或郵局無摺存款 (匯款資訊於送出表單後提供)。</li>
+                            <!-- 繳費資料回傳連結 placeholder 保持不變 -->
+                            <li><span class="font-bold text-red-600">重要：</span>完成繳費後<span class="font-bold">務必填寫</span><a href="[繳費資料回傳連結]" target="_blank" class="text-camp-accent hover:underline">繳費資料回傳表單</a>。</li>
+                            <li><span class="font-bold">報名成功：</span>完成「報名表單填寫與繳費」才算報名成功。</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 常見問題 (FAQ) -->
+        <section id="faq" class="section-padding bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">❓ 常見問題 (FAQ)</h2>
+                
+                <div id="faq-accordion" class="bg-gray-50 rounded-xl shadow-lg divide-y divide-gray-200 animate-on-scroll">
+                    <!-- FAQ Item 1: 住宿 -->
+                    <div class="accordion-item animate-on-scroll">
+                        <button class="w-full text-left p-4 font-semibold text-lg hover:bg-gray-100 flex justify-between items-center transition duration-300 focus:outline-none" onclick="toggleAccordion(1)">
+                            是否需要住宿？如何申請校園住宿？
+                            <span id="icon-1" class="text-camp-primary text-xl">+</span>
+                        </button>
+                        <div id="content-1" class="hidden p-4 pt-0 text-gray-600">
+                            <p>住宿可<span class="font-bold">自理</span>，或申請校園住宿。申請校園住宿費用為 <span class="font-bold">NT$1,500/人</span>，請在報名表單中勾選。校園宿舍有限，請務必在 <span class="font-bold">2025年12月15日</span> 前完成報名及匯款。</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 2: 餐食 -->
+                    <div class="accordion-item animate-on-scroll">
+                        <button class="w-full text-left p-4 font-semibold text-lg hover:bg-gray-100 flex justify-between items-center transition duration-300 focus:outline-none" onclick="toggleAccordion(2)">
+                            報名費用包含哪些項目？
+                            <span id="icon-2" class="text-camp-primary text-xl">+</span>
+                        </button>
+                        <div id="content-2" class="hidden p-4 pt-0 text-gray-600">
+                            <p>報名費已包含<span class="font-bold">課程教材、講師費、營隊期間餐食、旅行平安險及活動紀念品</span>。住宿費用需額外加收 NT$1,500 (含Day 2-4早餐)。</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 3: 繳費 -->
+                    <div class="accordion-item animate-on-scroll">
+                        <button class="w-full text-left p-4 font-semibold text-lg hover:bg-gray-100 flex justify-between items-center transition duration-300 focus:outline-none" onclick="toggleAccordion(3)">
+                            團體報名該如何繳費？
+                            <span id="icon-3" class="text-camp-primary text-xl">+</span>
+                        </button>
+                        <div id="content-3" class="hidden p-4 pt-0 text-gray-600">
+                            <p>團體報名請<span class="font-bold">指定一名聯絡人</span>，由聯絡人<span class="font-bold">統一繳交所有團員的費用</span>。完成繳費後，聯絡人務必填寫「繳費資料回傳表單」才算完成報名手續。</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 4: 備知識 -->
+                    <div class="accordion-item animate-on-scroll">
+                        <button class="w-full text-left p-4 font-semibold text-lg hover:bg-gray-100 flex justify-between items-center transition duration-300 focus:outline-none" onclick="toggleAccordion(4)">
+                            是否需要先備知識？
+                            <span id="icon-4" class="text-camp-primary text-xl">+</span>
+                        </button>
+                        <div id="content-4" class="hidden p-4 pt-0 text-gray-600">
+                            <p>本營隊課程設計從基礎入門，<span class="font-bold">無需</span>具備深厚的程式設計或 AI 相關先備知識。只要您是高中職學生，對數學、科技或數位創作有熱忱，都非常歡迎報名。</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 5: 低收減免 -->
+                    <div class="accordion-item animate-on-scroll">
+                        <button class="w-full text-left p-4 font-semibold text-lg hover:bg-gray-100 flex justify-between items-center transition duration-300 focus:outline-none" onclick="toggleAccordion(5)">
+                            低收或中低收入戶學生如何申請減免？
+                            <span id="icon-5" class="text-camp-primary text-xl">+</span>
+                        </button>
+                        <div id="content-5" class="hidden p-4 pt-0 text-gray-600">
+                            <p>請先<span class="font-bold">全額繳費</span>，並於營隊第一天報到時繳交「當年度低收或中低收證明<span class="font-bold">正本</span>」。營隊結束後一個月將依規定比例 (低收 80%；中低收 60%) 退還款項。</p>
+                        </div>
+                    </div>
+                    <!-- FAQ Item 6: 中途離營 -->
+                    <div class="accordion-item animate-on-scroll">
+                        <button class="w-full text-left p-4 font-semibold text-lg hover:bg-gray-100 flex justify-between items-center transition duration-300 focus:outline-none" onclick="toggleAccordion(6)">
+                            可否中途離開？
+                            <span id="icon-6" class="text-camp-primary text-xl">+</span>
+                        </button>
+                        <div id="content-6" class="hidden p-4 pt-0 text-gray-600">
+                            <p>建議學員全程參與營隊，以完整體驗課程和活動。如因特殊狀況需中途離營，請事先告知隊輔及行政人員並填寫離營單，營隊不退還任何費用。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 7. 地點資訊 (Location) -->
+        <section id="location" class="section-padding bg-gray-100">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">🗺️ 營隊地點：國立成功大學</h2>
+                
+                <div class="grid md:grid-cols-2 gap-10">
+                    <!-- 地點地圖/資訊 -->
+                    <div class="p-6 bg-white rounded-xl shadow-lg animate-on-scroll">
+                        <h3 class="text-2xl font-semibold text-camp-accent mb-4">校園位置與報到資訊</h3>
+                        <div class="aspect-video bg-gray-300 rounded-lg flex items-center justify-center mb-4">
+                            <!-- Placeholder for Campus Map/Map Embed -->
+                            <p class="text-gray-600"></p>
+                        </div>
+                        <p class="text-lg font-bold text-camp-primary mb-2">報到地點：[詳細地點請參考行前通知信]</p>
+                        <p class="text-gray-600">國立成功大學 (臺南市東區大學路1號)</p>
+                    </div>
+
+                    <!-- 主辦單位 -->
+                    <div class="p-6 bg-white rounded-xl shadow-lg animate-on-scroll">
+                        <h3 class="text-2xl font-semibold text-camp-accent mb-4">主辦／協辦單位</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="font-bold text-camp-primary text-lg">主辦單位</h4>
+                                <p>國立成功大學數學系系學會</p>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-camp-primary text-lg">協辦單位 (部分)</h4>
+                                <ul class="list-disc ml-5 text-gray-700 text-sm space-y-1">
+                                    <li>國立成功大學數學跨領域研究中心</li>
+                                    <li>國立成功大學通識教育中心</li>
+                                    <li>國立成功大學數學系、理學院</li>
+                                    <li>財團法人國立成功大學文教基金會</li>
+                                    <li>國科會自然處科學推展中心數學組、中華民國數學會</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. 聯絡我們 (Contact) -->
+        <section id="contact" class="section-padding bg-camp-primary/10">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-center text-camp-primary mb-12 border-b-4 border-camp-accent inline-block pb-1 animate-on-scroll">📞 聯絡資訊 / Contact</h2>
+                
+                <div class="bg-white p-8 rounded-xl shadow-2xl text-center space-y-6 animate-on-scroll">
+                    <p class="text-lg font-bold text-camp-accent">聯絡人：薛小姐</p>
+
+                    <div class="flex flex-col sm:flex-row justify-around space-y-4 sm:space-y-0 animate-on-scroll">
+                        <!-- Email -->
+                        <div class="flex flex-col items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-camp-accent mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-2-3H5a2 2 0 00-2 2v10a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2z" /></svg>
+                            <span class="font-semibold text-gray-700">Email (建議優先使用)</span>
+                            <a href="mailto:ircm@ncku.edu.tw" class="text-camp-primary hover:underline font-bold">ircm@ncku.edu.tw</a>
+                        </div>
+                        <!-- Phone -->
+                        <div class="flex flex-col items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-camp-accent mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.794 21 3 14.206 3 6V5z" /></svg>
+                            <span class="font-semibold text-gray-700">電話</span>
+                            <span class="text-camp-primary font-bold">06-275-7575 分機 65105</span>
+                        </div>
+                    </div>
+
+                    <!-- FB Link 連結已更新 -->
+                    <a href="https://www.facebook.com/p/%E6%88%90%E5%A4%A7%E6%95%B8%E5%AD%B8x%E8%B7%A8%E9%A0%98%E5%9F%9Fx%E5%BB%BA%E6%A8%A1%E7%A0%94%E7%BF%92%E7%87%9F-61568089536374/" target="_blank" class="mt-6 inline-block px-8 py-3 bg-camp-primary text-white font-bold rounded-lg shadow-xl hover:bg-blue-600 transition duration-300 animate-on-scroll">
+                        點擊前往 FB 粉絲專頁
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 9. 頁腳 (Footer) -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h4 class="text-xl font-bold mb-4">2026 成大 MATHINK AI 數創實境營</h4>
+            
+            <div class="mb-4 space-y-2 md:space-y-0 md:flex md:justify-center md:space-x-8 text-sm text-gray-400">
+                <p>主辦單位：國立成功大學數學系系學會</p>
+                <p>聯絡 Email：<a href="mailto:ircm@ncku.edu.tw" class="hover:text-camp-accent">ircm@ncku.edu.tw</a></p>
+            </div>
+
+            <p class="text-xs text-gray-500">© 2026 國立成功大學 MATHINK AI 數創實境營. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript for Mobile Menu, FAQ Accordion, and Scroll Animation -->
+    <script>
+        // 行動版菜單開關
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // 點擊菜單連結後關閉行動版菜單
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // FAQ 手風琴效果 (Accordion)
+        function toggleAccordion(id) {
+            const content = document.getElementById(`content-${id}`);
+            const icon = document.getElementById(`icon-${id}`);
+            
+            // 檢查是否隱藏
+            const isHidden = content.classList.contains('hidden');
+
+            // 關閉所有已開啟的項目
+            document.querySelectorAll('.accordion-item div').forEach(div => {
+                if (div.id.startsWith('content-') && !div.classList.contains('hidden')) {
+                    div.classList.add('hidden');
+                }
+            });
+            document.querySelectorAll('.accordion-item button span[id^="icon-"]').forEach(span => {
+                span.textContent = '+';
+            });
+
+            // 如果原本是隱藏的，則打開它
+            if (isHidden) {
+                content.classList.remove('hidden');
+                icon.textContent = '−'; // 使用長破折號以符合視覺效果
+            }
+        }
+
+        // 滾動動態效果 (IntersectionObserver)
+        window.onload = () => {
+            // 選擇所有需要滾動動畫的元素
+            const blocks = document.querySelectorAll('.animate-on-scroll');
+            const allBlocks = Array.from(blocks); // 轉換為陣列以便使用 indexOf
+
+            // 設定 Observer 的選項
+            const observerOptions = {
+                root: null, // 使用瀏覽器的 viewport 作為根元素
+                rootMargin: '0px 0px -10% 0px', // 在元素距離底部 10% 時就觸發
+                threshold: 0.01 // 元素有 1% 進入視窗即觸發
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    // 如果區塊進入視窗 (isIntersecting 為 true)
+                    if (entry.isIntersecting) {
+                        const block = entry.target;
+                        
+                        // 確定目前區塊在 blocks 陣列中的索引
+                        const index = allBlocks.indexOf(block);
+                        
+                        // 計算協調延遲：基於索引，每多一個區塊就多延遲 80ms
+                        const delay = index * 80;
+
+                        // 設置動態延遲時間，確保同一批進入視窗的區塊有順序感
+                        block.style.transitionDelay = `${delay}ms`;
+
+                        // 添加 is-visible class 觸發 CSS 轉換
+                        block.classList.add('is-visible');
+
+                        // 停止觀察此區塊，因為動畫已完成
+                        observer.unobserve(block);
+                    }
+                });
+            }, observerOptions);
+
+            // 讓 Observer 觀察所有具有 .animate-on-scroll 類別的元素
+            blocks.forEach(block => {
+                // 確保首頁元素不會被 observer 影響，它們使用的是 hero-animate
+                if (!block.closest('#home')) {
+                     observer.observe(block);
+                }
+            });
+        };
+    </script>
+</body>
+</html>
